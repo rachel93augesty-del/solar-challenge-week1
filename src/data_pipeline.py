@@ -1,18 +1,37 @@
 # src/data_pipeline.py
-from src.data_processing import clean_data, compute_derived_features
 import pandas as pd
 
-class SolarDataPipeline:
-    def __init__(self, filepath):
-        self.filepath = filepath
-        self.df = None
+def load_csv(path):
+    """
+    Load a CSV file into a pandas DataFrame.
+    Args:
+        path (str): Path to the CSV file
+    Returns:
+        pd.DataFrame
+    """
+    return pd.read_csv(path)
 
-    def load_data(self):
-        self.df = pd.read_csv(self.filepath)
+def clean_ghi(df):
+    """
+    Clean GHI column by removing negative values
+    Args:
+        df (pd.DataFrame)
+    Returns:
+        pd.DataFrame
+    """
+    df = df[df['GHI'] >= 0]
+    return df
 
-    def process_data(self):
-        self.df = clean_data(self.df)
-        self.df = compute_derived_features(self.df)
+def summary_statistics(df):
+    """
+    Return summary statistics and missing value report
+    Args:
+        df (pd.DataFrame)
+    Returns:
+        pd.DataFrame, pd.Series
+    """
+    stats = df.describe()
+    missing = df.isna().sum()
+    return stats, missing
 
-    def export_data(self, output_path):
-        self.df.to_csv(output_path, index=False)
+def drop_outliers(df, column_list):
